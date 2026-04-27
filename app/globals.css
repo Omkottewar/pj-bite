@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #1E5C2A; /* Forest Green */
+  --color-brand-primary-light: #2D6A2F;
+  --color-brand-primary-dark: #123B19;
+  
+  --color-brand-accent: #C4951A; /* Gold */
+  --color-brand-accent-light: #DFAB2B;
+  --color-brand-accent-dark: #A37A12;
+  
+  --color-brand-bg: #FAF7F2; /* Cream/Off-white */
+  --color-brand-surface: #FFFFFF;
+  
+  --color-brand-text: #1A2010; /* Very Dark Greenish Black */
+  --color-brand-text-muted: #6B7A5E; /* Muted Green Gray */
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif; /* Premium feeling for headings */
+}
+
+@layer base {
+  :root {
+    --background: #FAF7F2;
+    --foreground: #1A2010;
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply font-sans antialiased selection:bg-brand-primary selection:text-white;
+    /* Force native cursor visibility */
+    cursor: default !important;
+  }
+}
+
+/* ── FORCE NATIVE CURSOR VISIBILITY ── */
+/* Ensure native pointer is visible even when WebGL canvas is on top */
+html, body {
+  cursor: default !important;
+}
+
+canvas, .pointer-events-none {
+  cursor: default !important;
+}
+
+a, button, [role="button"], .cursor-pointer {
+  cursor: pointer !important;
+}
+
+input, textarea, [contenteditable="true"] {
+  cursor: text !important;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Premium UI Effects */
+  .premium-shadow {
+    box-shadow: 0 20px 40px -15px rgba(30, 92, 42, 0.08); /* Green tinted shadow */
+  }
+  
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-primary-light;
+  }
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-accent to-brand-accent-light;
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Blog Rich HTML Content Styles ── */
+  .blog-content {
+    color: #4A5568;
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .blog-content * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .blog-content h1, .blog-content h2, .blog-content h3,
+  .blog-content h4, .blog-content h5, .blog-content h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900;
+    color: #1A2010;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.25;
+  }
+  .blog-content h1 { font-size: 2rem; }
+  .blog-content h2 { font-size: 1.5rem; border-bottom: 2px solid #E8E6E1; padding-bottom: 0.5rem; }
+  .blog-content h3 { font-size: 1.25rem; }
+  .blog-content h4 { font-size: 1.1rem; }
+  .blog-content p {
+    margin-bottom: 1.25rem;
+    color: #4A5568;
+  }
+  .blog-content strong { font-weight: 800; color: #1A2010; }
+  .blog-content em { font-style: italic; }
+  .blog-content a {
+    color: #1E5C2A;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(30,92,42,0.3);
+  }
+  .blog-content a:hover { text-decoration-color: #1E5C2A; }
+  .blog-content ul, .blog-content ol {
+    margin: 1rem 0 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .blog-content ul { list-style-type: disc; }
+  .blog-content ol { list-style-type: decimal; }
+  .blog-content li { color: #4A5568; line-height: 1.7; }
+  .blog-content li::marker { color: #1E5C2A; font-weight: 700; }
+  .blog-content blockquote {
+    border-left: 4px solid #1E5C2A;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    background: #FAF7F2;
+    border-radius: 0 1rem 1rem 0;
+    font-style: italic;
+    color: #6B7A5E;
+    font-size: 1.05rem;
+  }
+  .blog-content img {
+    border-radius: 1rem;
+    margin: 1.5rem auto;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+  .blog-content code {
+    background: #F0EDE8;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.3rem;
+    font-size: 0.88em;
+    color: #1E5C2A;
+    font-family: monospace;
+  }
+  .blog-content pre {
+    background: #1A2010;
+    color: #FAF7F2;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+  .blog-content hr {
+    border: none;
+    border-top: 2px solid #E8E6E1;
+    margin: 2rem 0;
+  }
+}
+
+/* ── Hero Banner Animations ── */
+@keyframes ken-burns {
+  0%   { transform: scale(1.04) translateX(0) translateY(0); }
+  50%  { transform: scale(1.08) translateX(-1%) translateY(-0.5%); }
+  100% { transform: scale(1.04) translateX(0) translateY(0); }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 8s ease-in-out infinite;
+}
