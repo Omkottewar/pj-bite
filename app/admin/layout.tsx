@@ -7,7 +7,8 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, Tags, Package, ShoppingCart, LogOut,
   Bell, Ticket, Menu, X, FileText, Image as ImageIcon, RotateCcw,
-  Truck, Store, ChevronRight,
+  Truck, Store, ChevronRight, HelpCircle, MessageSquare, Shield,
+  Sparkles, Settings2,
 } from "lucide-react";
 
 type Role = "SUPERADMIN" | "VENDOR" | "CUSTOMER";
@@ -184,8 +185,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Refunds",    href: "/admin/refunds",    icon: RotateCcw },
     { name: "Shipping",   href: "/admin/shipping",   icon: Truck },
     { name: "Vouchers",   href: "/admin/coupons",    icon: Ticket },
-    { name: "Blogs",      href: "/admin/blogs",      icon: FileText },
-    { name: "Banners",    href: "/admin/banners",    icon: ImageIcon },
+    { name: "Blogs",            href: "/admin/blogs",            icon: FileText },
+    { name: "Banners",          href: "/admin/banners",          icon: ImageIcon },
+    { name: "FAQs",             href: "/admin/faqs",             icon: HelpCircle },
+    { name: "Testimonials",     href: "/admin/testimonials",     icon: MessageSquare },
+    { name: "Quality Cards",    href: "/admin/quality-cards",    icon: Shield },
+    { name: "Benefit Products", href: "/admin/benefit-products", icon: Sparkles },
+    { name: "Home Settings",    href: "/admin/home-settings",    icon: Settings2 },
   ];
 
   return (

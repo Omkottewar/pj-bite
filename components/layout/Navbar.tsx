@@ -57,8 +57,8 @@ interface SearchResult {
   categoryId?: { name: string };
 }
 
-// ── Inline Animated Search Bar (for the category strip) ────────────────────
-function InlineSearch({ categories = [] }: { categories?: any[] }) {
+// ── Inline Animated Search Bar ─────────────────────────────────────────────
+function InlineSearch({ categories = [], autoFocus = false }: { categories?: any[]; autoFocus?: boolean }) {
   const [query, setQuery] = useState("");
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -70,6 +70,13 @@ function InlineSearch({ categories = [] }: { categories?: any[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      const t = setTimeout(() => { inputRef.current?.focus(); setFocused(true); }, 60);
+      return () => clearTimeout(t);
+    }
+  }, [autoFocus]);
 
   // Cycle placeholder text
   const dynamicPlaceholders = categories.length > 0 
@@ -304,6 +311,8 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   const pathname = usePathname();
   const openCart = useCartStore((s) => s.openCart);
@@ -313,6 +322,7 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setCartCount(items.reduce((a, i) => a + i.quantity, 0));
@@ -334,7 +344,16 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
     return () => document.removeEventListener("mousedown", outside);
   }, []);
 
-  useEffect(() => { setIsOpen(false); }, [pathname]);
+  useEffect(() => { setIsOpen(false); setSearchOpen(false); }, [pathname]);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setHeaderHeight(el.offsetHeight));
+    ro.observe(el);
+    setHeaderHeight(el.offsetHeight);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -347,22 +366,29 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
   return (
     <>
       <header
+        ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white shadow-md shadow-black/5 border-b border-[#E8E6E1]"
+            ? "bg-white/95 backdrop-blur-md shadow-md shadow-black/5 border-b border-[#E8E6E1]"
             : "bg-white border-b border-[#E8E6E1]"
         }`}
       >
-        {/* ── Marquee Claims Strip ── */}
-        <div className="bg-brand-primary overflow-hidden py-2">
-          <div className="flex animate-marquee whitespace-nowrap">
-            {[...MARQUEE_CLAIMS, ...MARQUEE_CLAIMS].map((t, i) => (
-              <span key={i} className="mx-6 text-white text-[11px] font-black tracking-widest uppercase">
-                {t} &nbsp;•
-              </span>
-            ))}
+        {/* ── Marquee Claims Strip — collapses on scroll ── */}
+        <motion.div
+          animate={{ height: scrolled ? 0 : "auto" }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="bg-brand-primary overflow-hidden"
+        >
+          <div className="py-2">
+            <div className="flex animate-marquee whitespace-nowrap">
+              {[...MARQUEE_CLAIMS, ...MARQUEE_CLAIMS].map((t, i) => (
+                <span key={i} className="mx-6 text-white text-[11px] font-black tracking-widest uppercase">
+                  {t} &nbsp;•
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Main Nav Row ── */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -434,6 +460,25 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
 
             {/* ── Right icons ── */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+
+              {/* Search icon */}
+              <button
+                onClick={() => setSearchOpen((v) => !v)}
+                aria-label="Toggle search"
+                className={`p-2 sm:p-2.5 rounded-xl transition-colors group ${searchOpen ? "bg-brand-primary/10 text-brand-primary" : "hover:bg-brand-bg text-brand-text"}`}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {searchOpen ? (
+                    <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                      <X className="w-5 h-5" />
+                    </motion.span>
+                  ) : (
+                    <motion.span key="s" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}>
+                      <Search className="w-5 h-5 group-hover:text-brand-primary transition-colors" />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
 
               {/* Wishlist */}
               <Link
@@ -546,18 +591,23 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
           </div>
         </div>
 
-        {/* ── Mobile Search Strip ── */}
-        <div className="lg:hidden border-t border-[#F0EDE8] bg-white px-4 py-2 relative z-[40]">
-          <InlineSearch categories={categories} />
-        </div>
-
-        {/* ── Search Strip (desktop only) ── */}
-        <div className="hidden lg:block border-t border-[#F0EDE8] bg-[#FAFAF8]">
-          <div className="max-w-7xl mx-auto px-6 h-11 flex items-center">
-            {/* Fully stretched animated search bar */}
-            <InlineSearch categories={categories} />
-          </div>
-        </div>
+        {/* ── Collapsible Search Panel ── */}
+        <AnimatePresence>
+          {searchOpen && (
+            <motion.div
+              key="search-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden border-t border-[#F0EDE8] bg-white"
+            >
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+                <InlineSearch categories={categories} autoFocus />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* ── Mobile Drawer ── */}
@@ -721,8 +771,8 @@ export default function Navbar({ user, categories = [] }: { user?: any; categori
         )}
       </AnimatePresence>
 
-      {/* Spacer for fixed header — accounts for: marquee + main nav + search strip */}
-      <div className="h-[calc(2rem+56px+52px)] sm:h-[calc(2rem+64px+52px)] lg:h-[calc(2rem+64px+44px)]" />
+      {/* Spacer — matches actual header height */}
+      <div style={{ height: headerHeight }} />
     </>
   );
 }
